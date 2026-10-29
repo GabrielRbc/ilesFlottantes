@@ -2,6 +2,11 @@ package fr.Gabilou.ilesFlottantes.modeles.teams;
 
 import java.util.UUID;
 
+/**
+ * Représente l’identité et les statistiques de jeu d’un membre d’équipe.
+ * <p>L’UUID identifie le joueur ; le nom est celui connu lors de sa création.
+ * Ce modèle ne contient aucun solde : l’argent appartient exclusivement aux équipes.</p>
+ */
 public class GamePlayer {
 
     private final UUID id;

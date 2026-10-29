@@ -1,16 +1,38 @@
 prefix: "&8[&bÎles Flottantes&8] "
 
 general:
+  separator: ", "
+  none: "Aucun"
   only-players: "&cSeul un joueur en jeu peut exécuter cette commande."
   no-permission: "&cVous n'avez pas la permission d'exécuter cette commande."
   player-not-found: "&cLe joueur &e%s &cest introuvable ou hors ligne."
   invalid-amount: "&cVeuillez entrer un montant numérique valide supérieur à 0."
 
 game:
+  usage: '&e/game start | pause | stop | reset | time <minutes>'
+  time-set: '&aCompte à rebours configuré : %s minute(s). Lancez avec /game start.'
+  time-unlimited: '&aChronomètre libre : départ à zéro, arrêt manuel avec /game stop.'
+  time-locked: '&cConfigurez la durée avant le départ. Utilisez /game reset pour préparer une nouvelle partie.'
+  time-ended: '&cTemps écoulé ! La partie est terminée.'
+  resume-broadcast: '&aLa partie reprend !'
+  pause-broadcast: '&ePartie en pause. Le chrono et les actions des participants sont suspendus.'
+  stop-broadcast: '&cPartie terminée. Un /game reset est nécessaire pour rejouer.'
+  reset-broadcast: '&aPartie réinitialisée : chrono, membres, statistiques et caisses remis à zéro.'
+  invalid-transition: '&cAction impossible dans cet état : %s. Après un arrêt, utilisez /game reset.'
+  reset-failed: '&cÉchec de la sauvegarde : le reset est annulé, les données sont conservées.'
+  states:
+    READY: 'En attente'
+    RUNNING: 'En cours'
+    PAUSED: 'En pause'
+    STOPPED: 'Terminée'
   start-broadcast: "&aLa partie commence ! Les équipements ont été distribués."
 
 teams:
-  usage: "&cUsage : /team join <joueur> <équipe>  OU  /team leave <joueur>"
+  usage: '&e/team list | /team info <équipe> | /team join <joueur> <équipe> | /team leave <joueur>'
+  list-title: '&bÉquipes disponibles :'
+  list-entry: ' - %s joueur(s) - Caisse : %s$'
+  info: '&eMembres : %s | Caisse : %s$ | En ligne : %s'
+  suggestion: '%s - %s joueur(s)'
   not-found: "&cL'équipe &e%s &cn'existe pas."
   join-success-admin: "&aLe joueur &e%s &aa bien été ajouté à l'équipe &e%s&a."
   join-success-player: "&aUn administrateur vous a ajouté à l'équipe &e%s&a."
@@ -22,3 +44,44 @@ economy:
   pay-success: "&aVous avez envoyé &e%s$ &aà l'équipe &e%s&a."
   pay-received: "&aVotre équipe a reçu &e%s$ &ade la part de &e%s&a."
   insufficient-funds: "&cSolde insuffisant ! L'équipe &e%s &ca besoin de &e%s$ &c(Solde actuel : &e%s$&c)."
+  game-unavailable: '&cLes paiements sont suspendus lorsque la partie est en pause ou terminée.'
+  pay-usage: '&e/pay <joueur en ligne> <montant> : paie son équipe avec la caisse de votre équipe.'
+  set-usage: '&e/set <équipe> <montant> (admin). Exemple : /set "Bleu clair" 100.50'
+  set-success: '&aCaisse de l’équipe %s définie à %s$.'
+  balance: '&aCaisse de votre équipe %s : %s$.'
+  same-team: '&cImpossible de payer votre propre équipe.'
+  invalid-payment: '&cMontant invalide : de 0.01 à 999999999999.99, deux décimales maximum. La caisse destinataire ne doit pas dépasser ce plafond.'
+  invalid-balance: '&cSolde invalide : de 0 à 999999999999.99, deux décimales maximum.'
+  storage-error: '&cLa sauvegarde a échoué. Aucune modification du solde effectuée ; contactez un administrateur.'
+
+commands:
+  game: "Démarre, reprend, suspend, termine ou réinitialise la partie (admin)."
+  team: "Consulte et gère les équipes (admin)."
+  pay: "Transfère un montant entre les caisses des équipes via un joueur en ligne."
+  set: "Définit le solde de la caisse d’une équipe (admin)."
+  balance: "Affiche le solde de la caisse de votre équipe."
+
+system:
+  reset-failed: "Impossible de réinitialiser les caisses ; partie conservée."
+  enabled: "Îles Flottantes activé avec succès !"
+  load-failed: "Impossible de charger les caisses. Plugin désactivé pour préserver les données."
+  save-failed: "Impossible de sauvegarder les caisses ; transaction annulée."
+
+ui:
+  title: '&b&lLES ÎLES FLOTTANTES'
+  time-format: '%02d:%02d:%02d'
+  no-team: 'Sans équipe'
+  no-balance: '—'
+  nametag-prefix: '[%s] '
+  sidebar:
+    state: '&7Partie : &f%s'
+    time: '&7Chrono : &e%s'
+    remaining: '&7Temps restant : &e%s'
+    team: 'Équipe : %s'
+    kills: '&7Kills : &a%s'
+    deaths: '&7Morts : &c%s'
+    balance: '&7Caisse : &6%s$'
+  tab:
+    header: "&b&lLES ÎLES FLOTTANTES\n&f%s &8| &e%s"
+    player: '%s &8| &7%s &8| &aK %s &cM %s &8| &6%s$'
+    footer: '&7Votre équipe : &f%s &8| &7Caisse partagée : &6%s$'

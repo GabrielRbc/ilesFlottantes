@@ -1,11 +1,7 @@
 name: ilesFlottantes
 version: 1.0-SNAPSHOT
 main: fr.Gabilou.ilesFlottantes.IlesFlottantesPlugin
-api-version: '1.20'
-commands:
-  start:
-    description: Lance l'événement et distribue les équipements.
-    permission: ilesflottantes.admin
-  team:
-    description: Gestion administrative des équipes.
-    permission: ilesflottantes.admin
+api-version: '26.3'
+permissions:
+  ilesflottantes.admin:
+    default: op

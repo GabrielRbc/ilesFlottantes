@@ -15,6 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Gère les équipes disponibles, leurs membres et la distribution des casques colorés.
+ * <p>Les affectations sont conservées en mémoire et synchronisées vers le scoreboard
+ * principal. Elles ne sont pas restaurées dans ce modèle après un redémarrage.</p>
+ * <p>Les opérations utilisant Bukkit doivent être appelées sur le thread du serveur.
+ * La gestion financière est déléguée au gestionnaire d’économie.</p>
+ */
 public class TeamManager {
 
     private final Scoreboard mainScoreboard;
@@ -27,7 +34,7 @@ public class TeamManager {
     }
 
     private void initDefaultTeams() {
-        Map<String, Color> defaultColors = new HashMap<>();
+        Map<String, Color> defaultColors = new java.util.LinkedHashMap<>();
         defaultColors.put("Blanche", Color.WHITE);
         defaultColors.put("Gris clair", Color.SILVER);
         defaultColors.put("Grise", Color.GRAY);
@@ -41,7 +48,7 @@ public class TeamManager {
         defaultColors.put("Bleu", Color.BLUE);
         defaultColors.put("Vert", Color.GREEN);
         defaultColors.put("Vert clair", Color.LIME);
-        defaultColors.put("Rose", Color.OLIVE);
+        defaultColors.put("Rose", Color.fromRGB(0xF38BAA));
         defaultColors.put("Magenta", Color.FUCHSIA);
         defaultColors.put("Violet", Color.PURPLE);
 
@@ -78,7 +85,7 @@ public class TeamManager {
         targetTeam.addPlayer(gamePlayer);
 
         // Synchronisation avec le Scoreboard Minecraft
-        Team sbTeam = mainScoreboard.getTeam(teamName);
+        Team sbTeam = mainScoreboard.getTeam(targetTeam.getName());
         if (sbTeam != null) {
             sbTeam.addEntry(player.getName());
         }
@@ -136,6 +143,24 @@ public class TeamManager {
     }
 
     public List<TeamModel> getTeams() {
-        return teams;
+        return List.copyOf(teams);
+    }
+
+    public TeamModel getPlayerTeam(Player player) {
+        return teams.stream().filter(team -> team.getPlayers().stream()
+                .anyMatch(member -> member.getId().equals(player.getUniqueId())))
+                .findFirst().orElse(null);
+    }
+
+    /** Retire tous les membres et efface leurs statistiques, même hors ligne. */
+    public void reset() {
+        for (TeamModel model : teams) {
+            model.getPlayers().forEach(model::removePlayer);
+            Team scoreboardTeam = mainScoreboard.getTeam(model.getName());
+            if (scoreboardTeam != null) {
+                new java.util.HashSet<>(scoreboardTeam.getEntries()).forEach(scoreboardTeam::removeEntry);
+            }
+        }
+        playerMap.clear();
     }
 }
