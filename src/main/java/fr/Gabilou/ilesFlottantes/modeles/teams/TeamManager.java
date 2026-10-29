@@ -85,6 +85,23 @@ public class TeamManager {
         return true;
     }
 
+    public boolean removePlayerFromTeam(Player player) {
+        GamePlayer gamePlayer = getOrCreateGamePlayer(player);
+        boolean removed = false;
+
+        for (TeamModel team : teams) {
+            if (team.removePlayer(gamePlayer)) {
+                removed = true;
+            }
+        }
+
+        for (Team sbTeam : mainScoreboard.getTeams()) {
+            sbTeam.removeEntry(player.getName());
+        }
+
+        return removed;
+    }
+
     public TeamModel getTeamByName(String name) {
         for (TeamModel team : teams) {
             if (team.getName().equalsIgnoreCase(name)) {
@@ -94,9 +111,6 @@ public class TeamManager {
         return null;
     }
 
-    /**
-     * Méthode de distribution des casques à l'ensemble des équipes.
-     */
     public void giveStartEquipment() {
         for (TeamModel team : teams) {
             for (GamePlayer gamePlayer : team.getPlayers()) {

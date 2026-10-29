@@ -6,8 +6,6 @@ commands:
   start:
     description: Lance l'événement et distribue les équipements.
     permission: ilesflottantes.admin
-  jointeam:
-    description: Rejoindre une équipe.
-    usage: /jointeam <nom_equipe>
-  pay:
-    description: Payer un autre joueur.
+  team:
+    description: Gestion administrative des équipes.
+    permission: ilesflottantes.admin

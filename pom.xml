@@ -15,6 +15,7 @@
     </properties>
 
     <dependencies>
+        <!-- Paper API -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
@@ -22,6 +23,51 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/paper-api-26.3.build.227-stable.jar</systemPath>
         </dependency>
+
+        <!-- Adventure API -->
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-api</artifactId>
+            <version>local</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/adventure-api.jar</systemPath>
+        </dependency>
+
+        <!-- Adventure Key -->
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-key</artifactId>
+            <version>local</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/adventure-key.jar</systemPath>
+        </dependency>
+
+        <!-- BungeeChat API -->
+        <dependency>
+            <groupId>net.md_5</groupId>
+            <artifactId>bungeecord-chat</artifactId>
+            <version>local</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/bungeecord-chat.jar</systemPath>
+        </dependency>
+
+        <!-- Google Guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>local</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/guava.jar</systemPath>
+        </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
 
 </project>

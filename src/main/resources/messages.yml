@@ -1,0 +1,24 @@
+prefix: "&8[&bÎles Flottantes&8] "
+
+general:
+  only-players: "&cSeul un joueur en jeu peut exécuter cette commande."
+  no-permission: "&cVous n'avez pas la permission d'exécuter cette commande."
+  player-not-found: "&cLe joueur &e%s &cest introuvable ou hors ligne."
+  invalid-amount: "&cVeuillez entrer un montant numérique valide supérieur à 0."
+
+game:
+  start-broadcast: "&aLa partie commence ! Les équipements ont été distribués."
+
+teams:
+  usage: "&cUsage : /team join <joueur> <équipe>  OU  /team leave <joueur>"
+  not-found: "&cL'équipe &e%s &cn'existe pas."
+  join-success-admin: "&aLe joueur &e%s &aa bien été ajouté à l'équipe &e%s&a."
+  join-success-player: "&aUn administrateur vous a ajouté à l'équipe &e%s&a."
+  leave-success-admin: "&aLe joueur &e%s &aa été retiré de son équipe."
+  leave-success-player: "&aUn administrateur vous a retiré de votre équipe."
+  not-in-any-team: "&cLe joueur &e%s &ene fait partie d'aucune équipe."
+
+economy:
+  pay-success: "&aVous avez envoyé &e%s$ &aà l'équipe &e%s&a."
+  pay-received: "&aVotre équipe a reçu &e%s$ &ade la part de &e%s&a."
+  insufficient-funds: "&cSolde insuffisant ! L'équipe &e%s &ca besoin de &e%s$ &c(Solde actuel : &e%s$&c)."

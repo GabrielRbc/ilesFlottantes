@@ -1,19 +1,41 @@
+# Compilation & Build Maven
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 .kotlin
 
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+# Fichiers et dossiers du Serveur Minecraft / Paper
+/.paper/
+/cache/
+/config/
+/libraries/
+/logs/
+/plugins/
+/versions/
+/world/
+/world_nether/
+/world_the_end/
+
+# Fichiers générés à la racine par le serveur
+/*.json
+/*.properties
+/eula.txt
+/bukkit.yml
+/spigot.yml
+/commands.yml
+
+# Règle de sécurité : tout ce qui est dans src/ et libs/ doit être conservé
+!src/**
+!libs/**
+
+# IDE - IntelliJ IDEA
+.idea/
 *.iws
 *.iml
 *.ipr
 
-### Eclipse ###
+# IDE - Eclipse
 .apt_generated
 .classpath
 .factorypath
@@ -22,7 +44,7 @@ target/
 .springBeans
 .sts4-cache
 
-### NetBeans ###
+# IDE - NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -32,8 +54,9 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+# IDE - VS Code
 .vscode/
 
-### Mac OS ###
+# Système d'exploitation
 .DS_Store
+Thumbs.db
