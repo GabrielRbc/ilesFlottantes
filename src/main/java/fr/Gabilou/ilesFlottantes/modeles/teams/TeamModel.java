@@ -15,6 +15,7 @@ public class TeamModel {
     private final String name;
     private final Color color;
     private final List<GamePlayer> players;
+    private final boolean playable;
 
     /**
      * Constructeur d'une équipe
@@ -22,15 +23,22 @@ public class TeamModel {
      * @param color Couleur de l'équipe
      */
     public TeamModel(String name, Color color) {
+        this(name, color, true);
+    }
+
+    /** Crée une équipe jouable ou une équipe de protection sans membres. */
+    public TeamModel(String name, Color color, boolean playable) {
         this.name = name;
         this.color = color;
         this.players = new ArrayList<>();
+        this.playable = playable;
     }
 
     // Getters et Setters
     public String getName() { return name; }
     public Color getColor() { return color; }
     public List<GamePlayer> getPlayers() { return List.copyOf(players); }
+    public boolean isPlayable() { return playable; }
 
     /**
      * Permet d'ajouter des joueurs dans une équipe
@@ -38,6 +46,7 @@ public class TeamModel {
      * @return Confirmation de l'ajout
      */
     public boolean addPlayer(GamePlayer player) {
+        if (!playable) return false;
         if (!players.contains(player)) {
             return players.add(player);
         }

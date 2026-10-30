@@ -41,8 +41,9 @@ public final class GameListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) { display.remove(event.getPlayer()); }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDeath(PlayerDeathEvent event) {
+        game.finishIfExpired();
         if (game.getState() != GameSession.State.RUNNING || teams.getPlayerTeam(event.getEntity()) == null) return;
         Player victim = event.getEntity();
         teams.getOrCreateGamePlayer(victim).addDeath();

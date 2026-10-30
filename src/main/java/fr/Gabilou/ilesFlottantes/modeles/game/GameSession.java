@@ -18,6 +18,23 @@ public final class GameSession {
     private long elapsedNanos;
     private long startedAt;
     private Duration timeLimit;
+    private Runnable changed = () -> { };
+
+    /** Instantané transportable du chrono, sans référence à l’horloge du processus. */
+    public record Snapshot(State state, long elapsedNanos, Long limitNanos) {
+        public Snapshot {
+            Objects.requireNonNull(state);
+            if (elapsedNanos < 0 || limitNanos != null && (limitNanos <= 0 || elapsedNanos > limitNanos)) throw new IllegalArgumentException();
+        }
+    }
+    public void onChange(Runnable changed) { this.changed = changed; }
+    public Snapshot snapshot() { return new Snapshot(state, elapsed().toNanos(), timeLimit == null ? null : timeLimit.toNanos()); }
+    /** Une partie active redémarre suspendue ; aucune seconde hors ligne n’est comptée. */
+    public void restore(Snapshot saved) {
+        state = saved.state() == State.RUNNING ? State.PAUSED : saved.state();
+        elapsedNanos = saved.elapsedNanos(); startedAt = nanoTime.getAsLong();
+        timeLimit = saved.limitNanos() == null ? null : Duration.ofNanos(saved.limitNanos());
+    }
 
     /** Crée une partie en attente utilisant l’horloge monotone du système. */
     public GameSession() { this(System::nanoTime); }
@@ -50,6 +67,7 @@ public final class GameSession {
         if (minutes < 0 || minutes > 525600) throw new IllegalArgumentException();
         if (state != State.READY) return false;
         timeLimit = minutes == 0 ? null : Duration.ofMinutes(minutes);
+        changed.run();
         return true;
     }
 
@@ -61,6 +79,7 @@ public final class GameSession {
         if (state != State.RUNNING || timeLimit == null || elapsed().compareTo(timeLimit) < 0) return false;
         elapsedNanos = timeLimit.toNanos();
         state = State.STOPPED;
+        changed.run();
         return true;
     }
 
@@ -69,6 +88,7 @@ public final class GameSession {
         if (state != State.READY && state != State.PAUSED) return false;
         startedAt = nanoTime.getAsLong();
         state = State.RUNNING;
+        changed.run();
         return true;
     }
 
@@ -78,6 +98,7 @@ public final class GameSession {
         if (state != State.RUNNING) return false;
         elapsedNanos = elapsed().toNanos();
         state = State.PAUSED;
+        changed.run();
         return true;
     }
 
@@ -86,6 +107,7 @@ public final class GameSession {
         if (state != State.RUNNING && state != State.PAUSED) return false;
         elapsedNanos = elapsed().toNanos();
         state = State.STOPPED;
+        changed.run();
         return true;
     }
 
@@ -95,5 +117,6 @@ public final class GameSession {
         startedAt = 0;
         state = State.READY;
         timeLimit = null;
+        changed.run();
     }
 }

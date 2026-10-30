@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import java.util.stream.Collectors;
+import fr.Gabilou.ilesFlottantes.modeles.game.GameSession;
 
 /**
  * Construit les commandes administratives de consultation et d’affectation des équipes.
@@ -22,11 +23,13 @@ public final class TeamCommand {
     private final TeamManager teams;
     private final EconomyManager economy;
     private final MessageManager messages;
+    private final GameSession game;
 
-    public TeamCommand(TeamManager teams, EconomyManager economy, MessageManager messages) {
+    public TeamCommand(TeamManager teams, EconomyManager economy, MessageManager messages, GameSession game) {
         this.teams = teams;
         this.economy = economy;
         this.messages = messages;
+        this.game = game;
     }
 
     public LiteralCommandNode<CommandSourceStack> build() {
@@ -78,8 +81,11 @@ public final class TeamCommand {
     }
 
     private int join(CommandSender sender, String playerName, String teamName) {
+        if (game.getState() == GameSession.State.STOPPED) { sender.sendMessage(messages.get("results.frozen")); return 0; }
         Player target = Bukkit.getPlayerExact(playerName);
         if (target == null) { sender.sendMessage(messages.get("general.player-not-found", playerName)); return 0; }
+        TeamModel requested = teams.getTeamByName(teamName);
+        if (requested != null && !requested.isPlayable()) { sender.sendMessage(messages.get("teams.not-playable")); return 0; }
         if (!teams.assignPlayerToTeam(target, teamName)) { sender.sendMessage(messages.get("teams.not-found", teamName)); return 0; }
         String canonicalName = teams.getPlayerTeam(target).getName();
         sender.sendMessage(messages.get("teams.join-success-admin", target.getName(), canonicalName));
@@ -88,6 +94,7 @@ public final class TeamCommand {
     }
 
     private int leave(CommandSender sender, String playerName) {
+        if (game.getState() == GameSession.State.STOPPED) { sender.sendMessage(messages.get("results.frozen")); return 0; }
         Player target = Bukkit.getPlayerExact(playerName);
         if (target == null) { sender.sendMessage(messages.get("general.player-not-found", playerName)); return 0; }
         if (!teams.removePlayerFromTeam(target)) { sender.sendMessage(messages.get("teams.not-in-any-team", target.getName())); return 0; }

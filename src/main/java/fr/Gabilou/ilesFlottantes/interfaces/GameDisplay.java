@@ -16,6 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.*;
 import java.util.*;
+import fr.Gabilou.ilesFlottantes.modeles.results.FinalResults;
 
 /**
  * Présente un scoreboard personnel et le TAB, actualisés chaque seconde sur le thread serveur.
@@ -27,6 +28,7 @@ public final class GameDisplay {
     private final EconomyManager economy;
     private final GameSession game;
     private final MessageManager messages;
+    private final FinalResults results;
     private final Map<UUID, View> views = new HashMap<>();
     private BukkitTask task;
 
@@ -34,11 +36,12 @@ public final class GameDisplay {
     private record View(Scoreboard board, Objective objective, Scoreboard previousBoard,
                         Component previousName, Component previousHeader, Component previousFooter) { }
 
-    public GameDisplay(TeamManager teams, EconomyManager economy, GameSession game, MessageManager messages) {
+    public GameDisplay(TeamManager teams, EconomyManager economy, GameSession game, MessageManager messages, FinalResults results) {
         this.teams = teams;
         this.economy = economy;
         this.game = game;
         this.messages = messages;
+        this.results = results;
     }
 
     /** Lance une seule tâche synchrone et initialise les joueurs déjà connectés. */
@@ -56,6 +59,8 @@ public final class GameDisplay {
         long seconds = game.isCountdown() ? (nanos + 999_999_999L) / 1_000_000_000L : nanos / 1_000_000_000L;
         String time = messages.text("ui.time-format", seconds / 3600, seconds / 60 % 60, seconds % 60);
         String state = messages.text("game.states." + game.getState().name());
+        if (results.phase() != FinalResults.Phase.IDLE) state = messages.text("results.phases." + results.phase().name());
+        if (results.suspended()) state = messages.text("session.paused-phase", state);
         for (Player player : Bukkit.getOnlinePlayers()) {
             View view = views.computeIfAbsent(player.getUniqueId(), id -> createView(player));
             syncTeams(view.board());
@@ -66,7 +71,11 @@ public final class GameDisplay {
             TextColor color = team == null ? NamedTextColor.GRAY : TextColor.color(team.getColor().asRGB());
 
             line(view, 6, messages.component("ui.sidebar.state", state));
-            line(view, 5, messages.component(game.isCountdown() ? "ui.sidebar.remaining" : "ui.sidebar.time", time));
+            if (results.phase() == FinalResults.Phase.VOTING) {
+                long remaining = results.remainingSeconds();
+                line(view, 5, messages.component("results.sidebar-vote", remaining / 60, remaining % 60));
+            } else line(view, 5, messages.component(game.isCountdown() ? "ui.sidebar.remaining" : "ui.sidebar.time", time));
+            line(view, 7, messages.component("results.sidebar-points", results.points().getOrDefault(teamName, 0)));
             line(view, 4, messages.component("ui.sidebar.team", teamName).color(color));
             line(view, 3, messages.component("ui.sidebar.kills", stats.getKills()));
             line(view, 2, messages.component("ui.sidebar.deaths", stats.getDeaths()));

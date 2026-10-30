@@ -18,7 +18,7 @@ import java.util.UUID;
 /**
  * Gère les équipes disponibles, leurs membres et la distribution des casques colorés.
  * <p>Les affectations sont conservées en mémoire et synchronisées vers le scoreboard
- * principal. Elles ne sont pas restaurées dans ce modèle après un redémarrage.</p>
+ * principal. Elles sont restaurées depuis l’instantané de session au démarrage.</p>
  * <p>Les opérations utilisant Bukkit doivent être appelées sur le thread du serveur.
  * La gestion financière est déléguée au gestionnaire d’économie.</p>
  */
@@ -27,10 +27,42 @@ public class TeamManager {
     private final Scoreboard mainScoreboard;
     private final List<TeamModel> teams = new ArrayList<>();
     private final Map<UUID, GamePlayer> playerMap = new HashMap<>();
+    private Runnable changed = () -> { };
 
-    public TeamManager() {
+    public void onChange(Runnable changed) {
+        this.changed = changed; playerMap.values().forEach(player -> player.onChange(changed));
+    }
+
+    /** Capture tous les joueurs connus, y compris sans équipe ou déconnectés. */
+    public List<fr.Gabilou.ilesFlottantes.persistence.SessionSnapshot.SavedPlayer> snapshot() {
+        return playerMap.values().stream().map(player -> {
+            String team = teams.stream().filter(t -> t.getPlayers().contains(player)).map(TeamModel::getName).findFirst().orElse(null);
+            return new fr.Gabilou.ilesFlottantes.persistence.SessionSnapshot.SavedPlayer(player.getId(), player.getName(), team, player.getKills(), player.getDeaths());
+        }).toList();
+    }
+
+    /** Restaure les identités par UUID et reconstruit uniquement les équipes gérées par le plugin. */
+    public void restore(List<fr.Gabilou.ilesFlottantes.persistence.SessionSnapshot.SavedPlayer> saved) {
+        for (var player : saved) {
+            if (player.team() != null && (getTeamByName(player.team()) == null || !getTeamByName(player.team()).isPlayable())) throw new IllegalArgumentException();
+        }
+        reset();
+        for (var savedPlayer : saved) {
+            GamePlayer player = new GamePlayer(savedPlayer.id(), savedPlayer.name());
+            player.setKills(savedPlayer.kills()); player.setDeaths(savedPlayer.deaths());
+            player.onChange(changed); playerMap.put(player.getId(), player);
+            if (savedPlayer.team() != null) {
+                getTeamByName(savedPlayer.team()).addPlayer(player);
+                mainScoreboard.getTeam(savedPlayer.team()).addEntry(player.getName());
+            }
+        }
+    }
+
+    public TeamManager(String commonTeamName) {
         this.mainScoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         initDefaultTeams();
+        if (getTeamByName(commonTeamName) != null) throw new IllegalArgumentException();
+        teams.add(new TeamModel(commonTeamName, Color.WHITE, false));
     }
 
     private void initDefaultTeams() {
@@ -67,13 +99,25 @@ public class TeamManager {
     }
 
     public GamePlayer getOrCreateGamePlayer(Player player) {
-        return playerMap.computeIfAbsent(player.getUniqueId(),
-                uuid -> new GamePlayer(uuid, player.getName()));
+        GamePlayer model = playerMap.computeIfAbsent(player.getUniqueId(), uuid -> {
+            GamePlayer created = new GamePlayer(uuid, player.getName()); created.onChange(changed); return created;
+        });
+        if (!model.getName().equals(player.getName())) {
+            for (TeamModel team : teams) {
+                Team scoreboardTeam = mainScoreboard.getTeam(team.getName());
+                if (scoreboardTeam != null) {
+                    scoreboardTeam.removeEntry(model.getName());
+                    if (team.getPlayers().contains(model)) scoreboardTeam.addEntry(player.getName());
+                }
+            }
+            model.setName(player.getName());
+        }
+        return model;
     }
 
     public boolean assignPlayerToTeam(Player player, String teamName) {
         TeamModel targetTeam = getTeamByName(teamName);
-        if (targetTeam == null) return false;
+        if (targetTeam == null || !targetTeam.isPlayable()) return false;
 
         GamePlayer gamePlayer = getOrCreateGamePlayer(player);
 
@@ -89,6 +133,7 @@ public class TeamManager {
         if (sbTeam != null) {
             sbTeam.addEntry(player.getName());
         }
+        changed.run();
         return true;
     }
 
@@ -106,6 +151,7 @@ public class TeamManager {
             sbTeam.removeEntry(player.getName());
         }
 
+        if (removed) changed.run();
         return removed;
     }
 
@@ -162,5 +208,6 @@ public class TeamManager {
             }
         }
         playerMap.clear();
+        changed.run();
     }
 }

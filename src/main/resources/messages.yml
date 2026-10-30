@@ -9,7 +9,7 @@ general:
   invalid-amount: "&cVeuillez entrer un montant numérique valide supérieur à 0."
 
 game:
-  usage: '&e/game start | pause | stop | reset | time <minutes>'
+  usage: '&e/game start | pause | stop | reset | time <minutes> | vote end | save'
   time-set: '&aCompte à rebours configuré : %s minute(s). Lancez avec /game start.'
   time-unlimited: '&aChronomètre libre : départ à zéro, arrêt manuel avec /game stop.'
   time-locked: '&cConfigurez la durée avant le départ. Utilisez /game reset pour préparer une nouvelle partie.'
@@ -28,6 +28,7 @@ game:
   start-broadcast: "&aLa partie commence ! Les équipements ont été distribués."
 
 teams:
+  not-playable: "&cCette équipe est réservée aux zones communes et ne peut pas avoir de membres ni de spawn de partie."
   usage: '&e/team list | /team info <équipe> | /team join <joueur> <équipe> | /team leave <joueur>'
   list-title: '&bÉquipes disponibles :'
   list-entry: ' - %s joueur(s) - Caisse : %s$'
@@ -55,6 +56,10 @@ economy:
   storage-error: '&cLa sauvegarde a échoué. Aucune modification du solde effectuée ; contactez un administrateur.'
 
 commands:
+  vote: "Vote une seule fois pour le build d’une autre équipe participante."
+  points: "Affiche le classement des points de la partie."
+  zone: "Configure les zones, leurs protections et les ouvertures de raid (admin)."
+  spawn: "Configure et vérifie les spawns des équipes (admin)."
   game: "Démarre, reprend, suspend, termine ou réinitialise la partie (admin)."
   team: "Consulte et gère les équipes (admin)."
   pay: "Transfère un montant entre les caisses des équipes via un joueur en ligne."
@@ -62,6 +67,8 @@ commands:
   balance: "Affiche le solde de la caisse de votre équipe."
 
 system:
+  territories-save-failed: "Impossible de sauvegarder les zones ou spawns ; modification annulée."
+  territories-load-failed: "Configuration de carte invalide ; plugin désactivé pour préserver les données."
   reset-failed: "Impossible de réinitialiser les caisses ; partie conservée."
   enabled: "Îles Flottantes activé avec succès !"
   load-failed: "Impossible de charger les caisses. Plugin désactivé pour préserver les données."
@@ -85,3 +92,97 @@ ui:
     header: "&b&lLES ÎLES FLOTTANTES\n&f%s &8| &e%s"
     player: '%s &8| &7%s &8| &aK %s &cM %s &8| &6%s$'
     footer: '&7Votre équipe : &f%s &8| &7Caisse partagée : &6%s$'
+
+territories:
+  common-team: 'Commun'
+  usage: '&e/zone pos1|pos2 [x y z] ; /zone create <id> <équipe> ; /zone list ; /zone info|delete|lock <id> ; /zone unlock <id> [secondes]'
+  spawn-usage: '&e/spawn set|tp|info <équipe>. Le spawn doit être dans une zone de son équipe, sur un sol sûr.'
+  selected: '&aCoin %s sélectionné dans %s : %s, %s, %s.'
+  selection-required: '&cDéfinissez les deux coins avec /zone pos1 et /zone pos2 dans le même monde.'
+  invalid-height: '&cCette hauteur est en dehors des limites du monde.'
+  created: '&aZone %s créée pour l’équipe %s et protégée.'
+  invalid-region: '&cZone refusée : identifiant existant/invalide ou chevauchement. Utilisez 1 à 40 caractères minuscules, chiffres, tirets ou underscores.'
+  not-found: '&cZone introuvable : %s.'
+  empty: '&7Aucune zone définie.'
+  info: '&e%s &7| Équipe : %s | Monde : %s | (%s, %s, %s) → (%s, %s, %s) | %s'
+  locked: 'Protégée'
+  open: 'Vulnérable'
+  valid: 'Valide'
+  invalid: 'Invalide'
+  manual: 'jusqu’au verrouillage manuel'
+  seconds: '%s seconde(s)'
+  delete-success: '&aZone %s supprimée. Cet espace est désormais libre.'
+  lock-success: '&aZone %s protégée.'
+  unlock-success: '&eZone %s vulnérable : %s.'
+  denied: '&cZone protégée de l’équipe %s.'
+  save-failed: '&cÉchec de sauvegarde. La modification a été annulée.'
+  spawn-set: '&aSpawn de l’équipe %s enregistré avec votre position et orientation.'
+  spawn-missing: '&cAucun spawn enregistré pour %s.'
+  spawn-invalid: '&cSpawn de %s invalide : il faut une zone de cette équipe, un sol solide non dangereux, deux blocs libres et un monde chargé.'
+  spawn-info: '&e%s &7| Monde : %s | %s, %s, %s | %s'
+  teleported: '&aTéléportation au spawn de %s effectuée.'
+  start-failed: '&cDépart annulé : spawn absent, dangereux ou téléportation refusée pour : %s. Vérifiez avec /spawn info.'
+  join-spawn-failed: '&cImpossible de rejoindre votre spawn de départ. Contactez un administrateur.'
+  raid-ended: '&aLa zone %s est de nouveau protégée.'
+  raid-manual: '&cZone %s (%s) vulnérable — ouverture manuelle'
+  raid-timed: '&cRaid : %s (%s) — %s s restantes'
+
+results:
+  empty-title: '&7PARTIE TERMINÉE'
+  vote-unavailable: '&7Pas de scrutin possible : aucune autre équipe à évaluer ou aucun électeur éligible. Aucun point de build attribué.'
+  boss-earned: '&aL’équipe %s remporte le point : %s !'
+  frozen: '&cLes équipes et les caisses sont figées pendant les résultats. Utilisez /game reset pour préparer la suite.'
+  suspense: '&7Le point revient à…'
+  no-award: '&7Aucune équipe — aucun point attribué'
+  no-team: '&7Aucune équipe participante'
+  award-score: '&7 — %s &8| &6Total : %s point(s)'
+  winner-title: '&6&lVICTOIRE !'
+  tie-title: '&6&lÉGALITÉ !'
+  winner-score: '&f — %s point(s)'
+  winner-suspense: '&eL’équipe gagnante est…'
+  countdown: '&6&l%s'
+  ranking-title: '&6Classement des points attribués :'
+  ranking-row: '&f : %s point(s)'
+  sidebar-points: '&7Points : &6%s'
+  sidebar-vote: '&7Vote : &d%02d:%02d'
+  vote-title: '&d&lVOTE DES BUILDS'
+  vote-instructions: '&f30 minutes en spectateur — /vote <équipe>'
+  vote-open: '&dVote ouvert pour 30 minutes ! Visitez en spectateur, puis /vote <équipe>. Un seul vote par participant, sans voter pour sa propre équipe.'
+  vote-usage: '&e/vote <équipe> pendant le scrutin final. Un vote unique pour une autre équipe participante.'
+  vote-bar: '&dVote build : %02d:%02d &f| %s / %s votes'
+  vote-ended: '&aScrutin clôturé. Place aux résultats !'
+  vote-not-open: '&cLe vote n’est pas ouvert.'
+  phases:
+    AWARDS: 'Remise des points'
+    VOTING: 'Vote des builds'
+    REVEAL: 'Révélation finale'
+    FINISHED: 'Résultats finaux'
+  categories:
+    MONEY: '&6L’équipe la plus riche'
+    DRAGON: '&5Premier Ender Dragon vaincu'
+    WARDEN: '&3Premier Warden vaincu'
+    DEATHS: '&aL’équipe avec le moins de morts'
+    WITHER: '&8Premier Wither vaincu'
+    BUILD: '&dLe plus beau build'
+  values:
+    MONEY: '&f — %s monnaies &a(+1 point)'
+    DRAGON: '&a (+1 point)'
+    WARDEN: '&a (+1 point)'
+    DEATHS: '&f — %s mort(s) &a(+1 point)'
+    WITHER: '&a (+1 point)'
+    BUILD: '&f — %s vote(s) &a(+1 point)'
+  vote-results:
+    ACCEPTED: '&aVotre vote pour %s est enregistré et définitif.'
+    CLOSED: '&cLe scrutin n’est pas ouvert ou le délai est écoulé.'
+    INELIGIBLE: '&cSeuls les participants ayant une équipe et une autre équipe à évaluer peuvent voter.'
+    ALREADY_VOTED: '&cVous avez déjà voté pour cette partie.'
+    INVALID_TEAM: '&cCette équipe ne participe pas au scrutin.'
+    OWN_TEAM: '&cVous ne pouvez pas voter pour votre propre équipe.'
+
+session:
+  saved: '&aSession sauvegardée.'
+  paused-phase: '%s (en pause)'
+  restored: "Session restaurée. Utilisez /game start pour reprendre le jeu ou la cérémonie suspendue."
+  load-failed: "Session illisible ou incohérente : plugin désactivé sans écraser les données. Conservez session.json et sa copie .bak pour diagnostic."
+  save-failed: "La sauvegarde de session a échoué. Partie et cérémonie suspendues ; vérifiez l’espace disque et les permissions."
+  save-recovered: "Sauvegarde de session rétablie. La reprise reste manuelle avec /game start."

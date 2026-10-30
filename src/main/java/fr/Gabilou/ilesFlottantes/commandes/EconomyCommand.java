@@ -108,6 +108,7 @@ public final class EconomyCommand {
     }
 
     private int set(CommandSender sender, String teamName, String rawAmount) {
+        if (game.getState() == GameSession.State.STOPPED) return reply(sender, "results.frozen");
         TeamModel team = teams.getTeamByName(teamName);
         if (team == null) return reply(sender, "teams.not-found", teamName);
         try {

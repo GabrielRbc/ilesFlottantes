@@ -10,7 +10,10 @@ import java.util.UUID;
 public class GamePlayer {
 
     private final UUID id;
-    private final String name;
+    private String name;
+    private Runnable changed = () -> { };
+    public void onChange(Runnable changed) { this.changed = changed; }
+    public void setName(String name) { if (!this.name.equals(name)) { this.name = name; changed.run(); } }
     private int kills;
     private int deaths;
 
@@ -26,10 +29,10 @@ public class GamePlayer {
     public String getName() { return name; }
 
     public int getKills() { return kills; }
-    public void setKills(int kills) { this.kills = kills; }
-    public void addKill() { this.kills++; }
+    public void setKills(int kills) { if (kills < 0) throw new IllegalArgumentException(); this.kills = kills; changed.run(); }
+    public void addKill() { this.kills++; changed.run(); }
 
     public int getDeaths() { return deaths; }
-    public void setDeaths(int deaths) { this.deaths = deaths; }
-    public void addDeath() { this.deaths++; }
+    public void setDeaths(int deaths) { if (deaths < 0) throw new IllegalArgumentException(); this.deaths = deaths; changed.run(); }
+    public void addDeath() { this.deaths++; changed.run(); }
 }
